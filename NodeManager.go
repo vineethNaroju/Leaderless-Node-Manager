@@ -80,9 +80,10 @@ func (nm *NodeManager) snapshotNodeList() []*Node {
 func (nm *NodeManager) publishNodeList() {
 
 	nm.nodeStoreMutex.RLock()
-	defer nm.nodeStoreMutex.RUnlock()
 
 	nodes := nm.snapshotNodeList()
+
+	nm.nodeStoreMutex.RUnlock()
 
 	for _, val := range nodes {
 		go func(nd *Node) {
@@ -94,11 +95,12 @@ func (nm *NodeManager) publishNodeList() {
 func (nm *NodeManager) killNodes() {
 
 	nm.nodeStoreMutex.Lock()
-	defer nm.nodeStoreMutex.Unlock()
 
 	nm.alive = false
 
 	nodes := nm.snapshotNodeList()
+
+	nm.nodeStoreMutex.Unlock()
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(nodes))
